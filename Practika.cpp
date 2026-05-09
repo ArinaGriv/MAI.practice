@@ -19,7 +19,8 @@ bool input(Plane planes[], int& n);
 void makeIndex(int index[], int n);
 void sortIndex(Plane planes[], int index[], int n);
 void output(Plane planes[], int index[], int n);
-bool errors(ifstream& fin, int n);
+bool isNumber(char s[]);
+bool isText(char s[]);
 
 int main()
 {
@@ -43,27 +44,129 @@ int main()
     return 0;
 }
 
-bool input(Plane planes[], int& n)
+bool isNumber(char s[])
 {
-    ifstream fin("Board.txt");
-
-    fin >> n;
-
-    if (errors(fin, n))
+    if (strlen(s) == 0)
     {
         return false;
     }
 
+    for (int i = 0; s[i] != '\0'; i++)
+    {
+        if (s[i] < '0' || s[i] > '9')
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool isText(char s[])
+{
+    if (strlen(s) == 0)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool input(Plane planes[], int& n)
+{
+    ifstream fin("Board.txt");
+
+    if (!fin)
+    {
+        cout << "Ошибка: файл не найден" << endl;
+        return false;
+    }
+
+    char nStr[20];
+
+    fin >> nStr;
+
+    if (fin.fail())
+    {
+        cout << "Ошибка: файл пустой" << endl;
+        fin.close();
+        return false;
+    }
+
+    if (!isNumber(nStr))
+    {
+        cout << "Ошибка: количество записей должно быть числом" << endl;
+        fin.close();
+        return false;
+    }
+
+    n = atoi(nStr);
+
+    if (n <= 0 || n > SIZE)
+    {
+        cout << "Ошибка: некорректное количество записей" << endl;
+        fin.close();
+        return false;
+    }
+
+    char flightStr[20];
+    char pointStr[20];
+
     for (int i = 0; i < n; i++)
     {
-        fin >> planes[i].flight;
+        fin >> flightStr;
         fin >> planes[i].model;
         fin >> planes[i].board;
-        fin >> planes[i].point;
+        fin >> pointStr;
 
         if (fin.fail())
         {
-            cout << "Ошибка чтения данных" << endl;
+            cout << "Ошибка: недостаточно данных в записи № " << i + 1 << endl;
+            fin.close();
+            return false;
+        }
+
+        if (!isNumber(flightStr))
+        {
+            cout << "Ошибка: номер рейса в записи № " << i + 1 << " должен быть числом" << endl;
+            fin.close();
+            return false;
+        }
+
+        if (!isText(planes[i].model))
+        {
+            cout << "Ошибка: пустая марка самолета в записи № " << i + 1 << endl;
+            fin.close();
+            return false;
+        }
+
+        if (!isText(planes[i].board))
+        {
+            cout << "Ошибка: пустой бортовой номер в записи № " << i + 1 << endl;
+            fin.close();
+            return false;
+        }
+
+        if (!isNumber(pointStr))
+        {
+            cout << "Ошибка: пункт прибытия в записи № " << i + 1 << " должен быть числом" << endl;
+            fin.close();
+            return false;
+        }
+
+        planes[i].flight = atoi(flightStr);
+        planes[i].point = atoi(pointStr);
+
+        if (planes[i].flight <= 0)
+        {
+            cout << "Ошибка: номер рейса должен быть положительным" << endl;
+            fin.close();
+            return false;
+        }
+
+        if (planes[i].point <= 0)
+        {
+            cout << "Ошибка: пункт прибытия должен быть положительным" << endl;
             fin.close();
             return false;
         }
@@ -72,29 +175,6 @@ bool input(Plane planes[], int& n)
     fin.close();
 
     return true;
-}
-
-bool errors(ifstream& fin, int n)
-{
-    if (!fin)
-    {
-        cout << "Файл не найден" << endl;
-        return true;
-    }
-
-    if (fin.fail())
-    {
-        cout << "Ошибка чтения количества записей" << endl;
-        return true;
-    }
-
-    if (n <= 0 || n > SIZE)
-    {
-        cout << "Некорректное количество записей" << endl;
-        return true;
-    }
-
-    return false;
 }
 
 void makeIndex(int index[], int n)
