@@ -1,4 +1,15 @@
+.vs/
+Debug/
+x64/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
 *
 !Practika.cpp
 !Board.txt
+!variant.txt
+!README.md
+!test_positive_*.txt
+!test_negative_*.txt
 !.gitignore
